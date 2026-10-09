@@ -47,7 +47,12 @@
       background: color-mix(in srgb, var(--paper) 95%, transparent);
       backdrop-filter: blur(8px);
     }
-    .mark { width: 36px; height: 36px; color: var(--navy); flex: none; }
+    .logo-mark { width: 48px; height: 36px; object-fit: contain; flex: none; background: #fff; border-radius: 8px; }
+    .brand {
+      margin-top: 16px; background: #fff; border: 1px solid var(--line); border-radius: 16px;
+      padding: 8px 12px 4px; display: flex; justify-content: center;
+    }
+    .brand img { width: min(100%, 28rem); height: auto; display: block; }
     .bar small { display: block; color: var(--muted); font-size: 12px; }
     .bar strong { display: block; font-size: 15px; line-height: 1.35; }
     .wrap { max-width: 64rem; margin: 0 auto; padding: 0 16px 32px; }
@@ -163,10 +168,7 @@
 </head>
 <body>
   <header class="bar">
-    <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
-      <rect width="40" height="40" rx="12" fill="currentColor" opacity="0.16"></rect>
-      <path fill="currentColor" d="M26.2 9.2a11.8 11.8 0 1 0 .15 21.6 8.7 8.7 0 1 1-.15-21.6z"></path>
-    </svg>
+    <img class="logo-mark" src="https://raw.githubusercontent.com/dawood123654/albasaer-policies/main/logo-mark.jpg" alt="" />
     <div>
       <strong>معهد البصائر العالي للتدريب</strong>
       <small>دليل سياسات برنامج اللغة الإنجليزية</small>
@@ -174,6 +176,9 @@
   </header>
 
   <main class="wrap">
+    <div class="brand">
+      <img src="https://raw.githubusercontent.com/dawood123654/albasaer-policies/main/logo.jpg" alt="معهد البصائر العالي للتدريب" />
+    </div>
     <section class="hero">
       <div class="hatch"></div>
       <p class="sup">تحت إشراف المؤسسة العامة للتدريب التقني والمهني</p>
