@@ -370,11 +370,8 @@
         const at = new Date().toISOString();
         const button = event.currentTarget.querySelector("button");
         if (button) button.disabled = true;
-        fetch("https://webhook.site/3575fdec-27ce-4eff-a3df-2ce611ada6d4", {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ name, at }),
-        }).then((response) => {
+        const url = "https://script.google.com/macros/s/AKfycbwS1cZP99Yb7LTQ4MBkDucxRXwkQsvr-UnwyLaFP5LYlhZAPm-8fgNzsgJSp3x8Lhvh0w/exec?name=" + encodeURIComponent(name);
+        fetch(url).then((response) => {
           if (!response.ok) throw new Error("send failed");
           sent = { name, at };
           paintCards();
