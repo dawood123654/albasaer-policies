@@ -263,7 +263,6 @@
       ]}
     ];
 
-    const ACK = "albasaer-en-policy-ack";
     const SEEN = "albasaer-en-policy-seen";
     const cards = document.getElementById("cards");
     const chips = document.getElementById("chips");
@@ -271,6 +270,8 @@
     const progress = document.getElementById("progress");
     const q = document.getElementById("q");
     let seen = [];
+    let sent = null;
+    try { localStorage.removeItem("albasaer-en-policy-ack"); } catch (e) {}
     try { seen = JSON.parse(localStorage.getItem(SEEN) || "[]"); } catch (e) { seen = []; }
     if (!Array.isArray(seen)) seen = [];
 
@@ -349,16 +350,15 @@
       observe();
     }
     function ackHtml() {
-      let ack = null;
-      try { ack = JSON.parse(localStorage.getItem(ACK) || "null"); } catch (e) { ack = null; }
-      const body = ack && ack.at
-        ? `<div class="receipt"><strong>تم حفظ الإقرار</strong>${ack.name ? `<p>الاسم: ${escapeHtml(ack.name)}</p>` : ""}<p class="note">${new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium", timeStyle: "short" }).format(new Date(ack.at))}</p><button class="ghost" id="clear" type="button">مسح الإقرار من هذا الجهاز</button></div>`
+      const body = sent && sent.at
+        ? `<div class="receipt"><strong>تم إرسال الاسم</strong><p>الاسم: ${escapeHtml(sent.name)}</p><p class="note">${new Intl.DateTimeFormat("ar-SA", { dateStyle: "medium", timeStyle: "short" }).format(new Date(sent.at))}</p></div>`
         : `<form id="ack">
-            <label class="field">الاسم (اختياري)<input name="name" type="text" maxlength="80" autocomplete="name" /></label>
+            <label class="field">الاسم<input name="name" type="text" maxlength="80" autocomplete="name" required /></label>
             <label class="check"><input name="agree" type="checkbox" required /><span>أقر بأنني اطلعت على سياسات وضوابط التدريب لبرنامج اللغة الإنجليزية في معهد البصائر العالي للتدريب.</span></label>
-            <button class="primary" type="submit">حفظ الإقرار</button>
+            <button class="primary" type="submit">إرسال الاسم</button>
+            ${sent && sent.error ? `<p class="note">تعذر إرسال الاسم. حاول مرة أخرى.</p>` : ""}
           </form>`;
-      return `<section class="ack"><h2>إقرار الاطلاع</h2><p class="note">يُرسل الاسم إلى ملف الإقرارات في درايف المعهد، وقد يظهر خلال دقائق.</p>${body}</section>`;
+      return `<section class="ack"><h2>إقرار الاطلاع</h2><p class="note">الاسم إجباري، ويُرسل إلى ملف الإقرارات. لا يُحفظ على هذا الجهاز.</p>${body}</section>`;
     }
     function bindAck() {
       document.getElementById("ack")?.addEventListener("submit", (event) => {
@@ -366,18 +366,22 @@
         const data = new FormData(event.currentTarget);
         if (data.get("agree") !== "on") return;
         const name = String(data.get("name") || "").trim().slice(0, 80);
+        if (!name) return;
         const at = new Date().toISOString();
-        localStorage.setItem(ACK, JSON.stringify({ name, at }));
+        const button = event.currentTarget.querySelector("button");
+        if (button) button.disabled = true;
         fetch("https://webhook.site/3575fdec-27ce-4eff-a3df-2ce611ada6d4", {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({ name, at }),
-        }).catch(() => {});
-        paintCards();
-      });
-      document.getElementById("clear")?.addEventListener("click", () => {
-        localStorage.removeItem(ACK);
-        paintCards();
+        }).then((response) => {
+          if (!response.ok) throw new Error("send failed");
+          sent = { name, at };
+          paintCards();
+        }).catch(() => {
+          sent = { error: true };
+          paintCards();
+        });
       });
     }
     let observer;
